@@ -22,7 +22,7 @@ pb.update_all_passbands()
 
 ### for a cadence of 5 mins:
 def sample_number(t):
-    return 2.71*24*60/t # [days] * [hours/day] * [mins/hour] / [mins]
+    return 1.87*24*60/t # [days] * [hours/day] * [mins/hour] / [mins]
 
 def upsample_lightcurve(x_upsampled,x,y): 
     '''
@@ -32,7 +32,7 @@ def upsample_lightcurve(x_upsampled,x,y):
     return interpolated_lc(x_upsampled)
 
 # Define PHOEBE model 
-def get_phoebe_lightcurve(b,t,mask,Teff_ratio,requiv, ecc=1.6e-4, incl=77.3, period=2.71, gravb=0.9, irrad=0.9,nperiods=5):
+def get_phoebe_lightcurve(b,t,mask,Teff_ratio,requiv, ecc=0.0137, incl=77.7, period=1.87, gravb=0.9, irrad=0.9,nperiods=3):
     
     #setting chosen binary parameters
     b["ecc@binary"] = ecc
@@ -61,8 +61,8 @@ def get_phoebe_lightcurve(b,t,mask,Teff_ratio,requiv, ecc=1.6e-4, incl=77.3, per
 
 def log_likelihood(xuse, mask, flux, flux_err, Teff_ratio,requiv):    
     # Define period 
-    period = 2.71
-    nperiods = 5
+    period = 1.87
+    nperiods = 3
     # Define sampling rate
     tsamp = 100 #units?
     nsamp = sample_number(tsamp)
@@ -74,7 +74,7 @@ def log_likelihood(xuse, mask, flux, flux_err, Teff_ratio,requiv):
     b.flip_constraint("requivsumfrac@binary", solve_for="requiv@primary")
     b.flip_constraint("teffratio@binary", solve_for = "teff@primary")
 
-    model_flux = get_phoebe_lightcurve(b,xuse,mask,Teff_ratio,requiv, ecc=1.6e-4, incl=77.3, period=period, gravb=0.9, irrad=0.9,nperiods=nperiods)
+    model_flux = get_phoebe_lightcurve(b,xuse,mask,Teff_ratio,requiv, ecc=0.0137, incl=77.7, period=period, gravb=0.9, irrad=0.9,nperiods=nperiods)
     residual = flux - model_flux
     logL = -0.5 * np.sum((residual / flux_err) ** 2 + np.log(2 * np.pi * flux_err ** 2))
     return logL
@@ -111,10 +111,11 @@ def log_posterior(params, xuse, mask, flux, flux_err):
 
 
 def guess_initial_pars(nwalkers, ndim=2): 
-
+    # below is setting the intial starting point, it has to be an accept to run
     initial_pos = np.empty((nwalkers,ndim))
-    Teff_guess = 0.65 + 0.1*np.random.randn(nwalkers)
-    requiv_guess = 0.483 + 0.1*np.random.randn(nwalkers)
+    Teff_guess = 0.5 + 0.1*np.random.randn(nwalkers)
+    requiv_guess = 0.5 + 0.1*np.random.randn(nwalkers)
+    # incl = 90 - 4.5*np.abs(np.randpm.randn(walkers))
 
     initial_pos[:,0] = Teff_guess
     initial_pos[:,1] = requiv_guess
@@ -135,19 +136,19 @@ def get_confidence_interval(percentiles):
 if __name__=='__main__': 
     ndim = 2 
     nwalkers = 4 
-    nsteps = 100
+    nsteps = 200
     
     p0 = guess_initial_pars(nwalkers,ndim)
-    
+    # rename the files for whatever you are running
     # Import simulated light curve to act as "true data" 
-    yfull = np.load('fluxes.npy') # Normalized
-    xfull = np.load('t_arr.npy') # units of days 
-    mask = np.load('mask.npy') 
+    yfull = np.load('fluxes_95percent.npy') # Normalized
+    xfull = np.load('t_arr_95percent.npy') # units of days 
+    mask = np.load('mask_95percent.npy') 
     xuse = xfull[mask]
     fluxes = yfull[mask]
     
     # For uncertainties, let's assume the same for all data points, based off of our added gaussian noise (mean 0, std = 0.01)
-    flux_err = np.ones_like(fluxes)*0.01
+    flux_err = np.ones_like(fluxes)*0.05 # CHANGE WITH SIGMA FROM NOISY FILES
     
     # Initialize mcmc 
     sampler = emcee.EnsembleSampler(nwalkers,ndim,log_posterior,args=(xuse,mask,fluxes,flux_err))
@@ -170,7 +171,7 @@ if __name__=='__main__':
     flat_samples = sampler.get_chain(discard=int(nsteps*0.1), flat=True)
     
     #Save data to disk for future analysis
-    path = 'chains.npy'
+    path = 'chains_95percent.npy'
     np.save(path, flat_samples)
 
 
@@ -178,7 +179,7 @@ if __name__=='__main__':
     # Load in chains 
     import corner 
     # flat_samples = np.load('chains1.npy')
-    flat_samples = np.load('chains.npy')
+    flat_samples = np.load('chains_95percent.npy')
     
     # Define labels for corner plot
     labels = [r"$T$", r"$requiv$"]
@@ -194,8 +195,21 @@ if __name__=='__main__':
     requiv_fit,upper_req,lower_req = get_confidence_interval(Requiv_mcmc)
 
 
-    # Compute best fit model 
-    best_model_flux = get_phoebe_lightcurve(xfull,mask,Teff_fit,requiv_fit)
+    # Compute best fit model
+        # Define period 
+    period = 1.87
+    nperiods = 3
+    # Define sampling rate
+    tsamp = 100 #units? # can update this to run faster/slower
+    nsamp = sample_number(tsamp)
+    logger = pb.logger()
+    b = pb.default_binary(force_build=True)
+    lcnum='lc01'
+    b.add_dataset('lc', times=pb.linspace(0,period,int(nsamp)), dataset=lcnum, overwrite=True)
+    ### comment out these two lines after running once (if re-running cell)
+    b.flip_constraint("requivsumfrac@binary", solve_for="requiv@primary")
+    b.flip_constraint("teffratio@binary", solve_for = "teff@primary") 
+    best_model_flux = get_phoebe_lightcurve(b,xfull,mask,Teff_fit,requiv_fit)
 
     print(r'''Best fit parameters: 
 Teff = {0}(upper err): {1}, (lower err): {2}
@@ -230,9 +244,14 @@ Requiv = {3}(upper err): {4}, (lower err): {5}
     ax1.set_ylabel('Normalized Flux (arb.)',fontsize=18)
     ax1.grid(alpha=0.1)
     ax2.grid(alpha=0.1)
-    plt.savefig('bestfit.png')
+    plt.savefig('bestfit_95percent.png')
     
     plt.show()
+
+        # Save best fit model to disk
+    np.save('bestfit_95percent.npy',best_model_flux)
+    # save best fit parameters to disk
+    np.save('bestfit_pars_95percent.npy',np.array([Teff_fit,requiv_fit]))
     
 
 

@@ -1,0 +1,54 @@
+# 10%:
+# Best fit parameters: 
+# Teff = 0.6031136489293873(upper err): 0.012980352942127071, (lower err): 0.01672262932791424
+# Requiv = 0.46851053419898164(upper err): 0.0034957823966391133, (lower err): 0.0048698253473006825
+# Mean acceptance fraction: 0.62625
+
+
+# 90%:
+# Best fit parameters: 
+# Teff = 0.6689686393177536(upper err): 0.022572238738716166, (lower err): 0.018995915114279116
+# Requiv = 0.5017973723531329(upper err): 0.007429098154553282, (lower err): 0.009455152554906754
+# Mean acceptance fraction: 0.6699999999999999
+
+# 80%:
+# Best fit parameters: 
+# Teff = 0.6217517693521349(upper err): 0.019941216813801677, (lower err): 0.027115492926096163
+# Requiv = 0.47653056020020057(upper err): 0.007296225866585904, (lower err): 0.005994121669728902
+# Mean acceptance fraction: 0.6687500000000001
+
+# 70%:
+# Best fit parameters: 
+# Teff = 0.6247891669958636(upper err): 0.02257941010880704, (lower err): 0.027305556519326868
+# Requiv = 0.47589937532803106(upper err): 0.0052277126237174065, (lower err): 0.005688252630192625
+# Mean acceptance fraction: 0.59625
+
+# 60%:
+# Best fit parameters: 
+# Teff = 0.635480279196729(upper err): 0.01898688601591436, (lower err): 0.01956334837508733
+# Requiv = 0.4760690550230833(upper err): 0.004975125331747099, (lower err): 0.004930930690215607
+# Mean acceptance fraction: 0.615
+
+# 50%:
+# Best fit parameters: 
+# Teff = 0.6374176032499315(upper err): 0.017361301754159064, (lower err): 0.014645602587021855
+# Requiv = 0.47712206396329265(upper err): 0.005107347596422895, (lower err): 0.004078802857636343
+# Mean acceptance fraction: 0.5900000000000001
+
+# 40%:
+# Best fit parameters: 
+# Teff = 0.6111212834118562(upper err): 0.01550329731564637, (lower err): 0.0176209667620838
+# Requiv = 0.47406919400525027(upper err): 0.00465721653033635, (lower err): 0.004963009476444347
+# Mean acceptance fraction: 0.69
+
+# 30%:
+# Best fit parameters: 
+# Teff = 0.6264872361387945(upper err): 0.01156930801586864, (lower err): 0.018133818585677086
+# Requiv = 0.47322559428596267(upper err): 0.006284979400572599, (lower err): 0.004517630002529138
+# Mean acceptance fraction: 0.6425000000000001
+
+# 20%:
+# Best fit parameters: 
+# Teff = 0.5905593313838782(upper err): 0.011100973027376893, (lower err): 0.03554112715518254
+# Requiv = 0.467278522644617(upper err): 0.0032778192962379382, (lower err): 0.013152764866722233
+# Mean acceptance fraction: 0.6325000000000001
